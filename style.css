@@ -202,6 +202,7 @@ footer a {
 }
 .card {
     width: 50vw !important;
+    max-width: 800px;
     height: fit-content;
     background-color: white;
     border: 1px solid lightgrey;
