@@ -86,6 +86,7 @@ function combinePokemonDetails(basicData, speciesData) {
     types: basicData.types,
     speciesData: speciesData,
     stats: basicData.stats,
+    evolution: speciesData.evolution_chain,
     imageUrl: basicData.sprites.other["official-artwork"].front_default, // Hinzufügen der Bild-URL
   };
 }
@@ -158,7 +159,7 @@ function generatePokemonCardHTML(pokemonId,pokemonName, backgroundColor,typesHTM
 }
 
 function renderPokemonCard(pokemon, index) {
-  const pokemonId = pokemon.details.id.toString().padStart(3, "0");
+  const pokemonId = pokemon.details.id.toString().padStart(4, "0");
   const pokemonName = pokemon.details.name_de || pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
   const backgroundColor = getTypeColors(pokemon.details.types);
   const typesHTML = getPokemonTypesHTML(pokemon.details.types);
