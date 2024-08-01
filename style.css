@@ -183,6 +183,7 @@ footer a {
     top: 0;
     left: 0;
     background-image: linear-gradient(to right, rgb(255,203,3) 0%, rgb(51,102,175)100%);
+    /* #FFCB03 gelb,  #3366AF blau*/
     transition: 0.5s ease;
     display: block;
     z-index: -1;
@@ -263,4 +264,25 @@ footer a {
     font-weight: bold;
     color: rgb(255,203,3);
     cursor: pointer;
+}
+
+.nav-link {
+    color:#3366af !important;
+}
+
+.nav-link.active{
+    font-weight: bold !important;
+    color: rgb(255,203,3) !important;
+}
+
+.icon {
+    height: 40px;
+    width: 40px;
+}
+.progress {
+    width: 70%;
+}
+
+.statsTitle {
+    width: 30%;
 }
