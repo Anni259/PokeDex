@@ -239,27 +239,27 @@ function generateEvolution(){
 // Hinzufügen der Suchfunktion
 function searchPokemon(query) {
   if (query.length >= 3) {
-    const filteredPokemon = pokemonData.filter((pokemon) =>
+    const searchedPokemon = pokemonData.filter((pokemon) =>
       pokemon.details.name_de
         ? pokemon.details.name_de.toLowerCase().includes(query.toLowerCase())
         : pokemon.name.toLowerCase().includes(query.toLowerCase())
     );
-    displayFilteredPokemon(filteredPokemon);
+    displaySearchedPokemon(searchedPokemon);
   } else {
     displayPokemon(); // Zeige alle Pokémon, wenn die Suchanfrage weniger als 3 Zeichen enthält
   }
 }
 
-function displayFilteredPokemon(filteredPokemon) {
+function displaySearchedPokemon(searchedPokemon) {
   const container = document.getElementById("pokedex");
   container.innerHTML = "";
 
-  if (filteredPokemon.length == 0){
+  if (searchedPokemon.length == 0){
     container.innerHTML = '<h2>Kein Pokemon gefunden!</h2>';
   }
 
-  for (let i = 0; i < filteredPokemon.length; i++) {
-    const pokemon = filteredPokemon[i];
+  for (let i = 0; i < searchedPokemon.length; i++) {
+    const pokemon = searchedPokemon[i];
     container.innerHTML += renderPokemonCard(pokemon, i);
   }
 }

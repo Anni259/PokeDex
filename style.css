@@ -257,8 +257,8 @@ footer a {
 
 .close {
     position: absolute;
-    top: 5%;
-    right: 5%;
+    top: 2%;
+    right: 4%;
     font-size: 40px;
     font-weight: bold;
     color: rgb(255,203,3);
