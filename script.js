@@ -86,7 +86,6 @@ function combinePokemonDetails(basicData, speciesData) {
     types: basicData.types,
     speciesData: speciesData,
     stats: basicData.stats,
-    evolution: speciesData.evolution_chain,
     imageUrl: basicData.sprites.other["official-artwork"].front_default, // Hinzufügen der Bild-URL
   };
 }
@@ -191,11 +190,16 @@ function displayPokemon() {
 function openPokemonCard(index) {
   const currentPokemon = pokemonData[index];
   currentPokemonIndex = index;
-  document.getElementById("pokemonName").innerHTML = currentPokemon.details.name_de;
-  document.getElementById("pokemon-card-img").src = currentPokemon.details.imageUrl;
-  document.getElementById("home-tab-pane").innerHTML = generateAbout(currentPokemon);
-  document.getElementById("profile-tab-pane").innerHTML = generateStats(currentPokemon);
-  document.getElementById("contact-tab-pane").innerHTML = generateEvolution(currentPokemon);
+  document.getElementById("pokemonName").innerHTML =
+    currentPokemon.details.name_de;
+  document.getElementById("pokemon-card-img").src =
+    currentPokemon.details.imageUrl;
+  document.getElementById("home-tab-pane").innerHTML =
+    generateAbout(currentPokemon);
+  document.getElementById("profile-tab-pane").innerHTML =
+    generateStats(currentPokemon);
+  document.getElementById("contact-tab-pane").innerHTML =
+    generateEvolution(currentPokemon);
   document.getElementById("pokemonCard").classList.remove("d-none");
 }
 
@@ -247,51 +251,77 @@ function generateStats(currentPokemon){
       <div class="statsTitle">
        <p>KP</p>
       </div>
-      <div class="progress" role="progressbar" aria-label="Warning example" aria-valuenow="${currentPokemon.details.stats[0].base_stat}" aria-valuemin="0" aria-valuemax="255">
-        <div class="progress-bar text-bg-warning" style="width: ${(currentPokemon.details.stats[0].base_stat / 255) * 100}%">${currentPokemon.details.stats[0].base_stat}</div> 
+      <div class="progress" role="progressbar" aria-label="Warning example" aria-valuenow="${
+        currentPokemon.details.stats[0].base_stat
+      }" aria-valuemin="0" aria-valuemax="255">
+        <div class="progress-bar text-bg-warning" style="width: ${
+          (currentPokemon.details.stats[0].base_stat / 255) * 100
+        }%">${currentPokemon.details.stats[0].base_stat}</div> 
       </div>
     </div>
     <div class="statsAttack d-flex flex-row align-items-center">
       <div class="statsTitle">
        <p>Angriff</p>
       </div>
-      <div class="progress" role="progressbar" aria-label="Warning example" aria-valuenow="${currentPokemon.details.stats[1].base_stat}" aria-valuemin="0" aria-valuemax="255">
-        <div class="progress-bar text-bg-warning" style="width: ${(currentPokemon.details.stats[1].base_stat / 255) * 100}%">${currentPokemon.details.stats[1].base_stat}</div>
+      <div class="progress" role="progressbar" aria-label="Warning example" aria-valuenow="${
+        currentPokemon.details.stats[1].base_stat
+      }" aria-valuemin="0" aria-valuemax="255">
+        <div class="progress-bar text-bg-warning" style="width: ${
+          (currentPokemon.details.stats[1].base_stat / 255) * 100
+        }%">${currentPokemon.details.stats[1].base_stat}</div>
       </div>
     </div>
     <div class="statsDefense d-flex flex-row align-items-center">
       <div class="statsTitle">
         <p>Verteidigung</p>
       </div>
-      <div class="progress" role="progressbar" aria-label="Warning example" aria-valuenow="${currentPokemon.details.stats[2].base_stat}" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar text-bg-warning" style="width: ${(currentPokemon.details.stats[2].base_stat / 255) * 100}%">${currentPokemon.details.stats[2].base_stat}</div>
+      <div class="progress" role="progressbar" aria-label="Warning example" aria-valuenow="${
+        currentPokemon.details.stats[2].base_stat
+      }" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar text-bg-warning" style="width: ${
+          (currentPokemon.details.stats[2].base_stat / 255) * 100
+        }%">${currentPokemon.details.stats[2].base_stat}</div>
       </div>
     </div>
     <div class="statsSpecialAttack d-flex flex-row align-items-center">
       <div class="statsTitle">
        <p>Spez.Angriff</p>
       </div>
-      <div class="progress" role="progressbar" aria-label="Warning example" aria-valuenow="${currentPokemon.details.stats[3].base_stat}" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar text-bg-warning" style="width: ${(currentPokemon.details.stats[3].base_stat / 255) * 100}%">${currentPokemon.details.stats[3].base_stat}</div>
+      <div class="progress" role="progressbar" aria-label="Warning example" aria-valuenow="${
+        currentPokemon.details.stats[3].base_stat
+      }" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar text-bg-warning" style="width: ${
+          (currentPokemon.details.stats[3].base_stat / 255) * 100
+        }%">${currentPokemon.details.stats[3].base_stat}</div>
       </div>
     </div>
     <div class="statsSpecialDefense d-flex flex-row align-items-center">
       <div class="statsTitle">
         <p>Spez.Verteidigung</p>
       </div>
-      <div class="progress" role="progressbar" aria-label="Warning example" aria-valuenow="${currentPokemon.details.stats[4].base_stat}" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar text-bg-warning" style="width: ${(currentPokemon.details.stats[4].base_stat / 255) * 100}%">${currentPokemon.details.stats[4].base_stat}</div>
+      <div class="progress" role="progressbar" aria-label="Warning example" aria-valuenow="${
+        currentPokemon.details.stats[4].base_stat
+      }" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar text-bg-warning" style="width: ${
+          (currentPokemon.details.stats[4].base_stat / 255) * 100
+        }%">${currentPokemon.details.stats[4].base_stat}</div>
       </div>
     </div>
     <div class="statsSpeed d-flex flex-row align-items-center">
       <div class="statsTitle">
         <p>Initiative</p>
       </div>
-      <div class="progress" role="progressbar" aria-label="Warning example" aria-valuenow="${currentPokemon.details.stats[5].base_stat}" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar text-bg-warning" style="width: ${(currentPokemon.details.stats[5].base_stat / 255) * 100}%">${currentPokemon.details.stats[5].base_stat}</div>
+      <div class="progress" role="progressbar" aria-label="Warning example" aria-valuenow="${
+        currentPokemon.details.stats[5].base_stat
+      }" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar text-bg-warning" style="width: ${
+          (currentPokemon.details.stats[5].base_stat / 255) * 100
+        }%">${currentPokemon.details.stats[5].base_stat}</div>
       </div>
     </div>
-    <i>*Der Maximalwert beträgt 255</i>
+    <div class="d-flex justify-content-end" style="font-size: 12px">
+      <i>*Der Maximalwert beträgt 255</i>
+    </div>
   `;
 }
 

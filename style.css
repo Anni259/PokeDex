@@ -48,6 +48,7 @@ h2 {
 }
 h3 {
     font-size: 20px !important;
+    color:#3366af !important;
 }
 p {
     font-size: 16px;
@@ -206,17 +207,17 @@ footer a {
     max-width: 800px;
     height: fit-content;
     background-color: white;
-    border: 1px solid lightgrey;
     border-radius: 8px;
     padding: 24px;
     display: flex;
     align-items: center;
+    border: 15px solid #3366af !important;
 }
 .card h2 {
     color: black !important;
 }
 .card-body {
-    width: 80%;
+    width: 90%;
 }
 .pokemonCard-bg {
     background-color: rgba(0, 0, 0, 0.7);
@@ -281,8 +282,12 @@ footer a {
 }
 .progress {
     width: 70%;
+    height: 25px !important;
 }
 
 .statsTitle {
     width: 30%;
+}
+.tab-content p {
+    color: #3366af !important;
 }
