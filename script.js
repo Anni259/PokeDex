@@ -146,7 +146,7 @@ function getPokemonTypesHTML(types) {
         `<span class="pokemon-type" style="background-color: ${TYPE_COLORS[type.type.name]}">${type.type.name_de}</span>`).join("");
 }
 
-function generatePokemonCardHTML(pokemonId,pokemonName, backgroundColor,typesHTML,imageUrl,index) {
+function generatePokemonCardHTML(pokemonId, pokemonName, backgroundColor, typesHTML, imageUrl, index) {
   return `
     <div onclick="openPokemonCard(${index})" class="pokemon" style="background: ${backgroundColor}">
       <p class="ID"># ${pokemonId}</p>
@@ -190,16 +190,11 @@ function displayPokemon() {
 function openPokemonCard(index) {
   const currentPokemon = pokemonData[index];
   currentPokemonIndex = index;
-  document.getElementById("pokemonName").innerHTML =
-    currentPokemon.details.name_de;
-  document.getElementById("pokemon-card-img").src =
-    currentPokemon.details.imageUrl;
-  document.getElementById("home-tab-pane").innerHTML =
-    generateAbout(currentPokemon);
-  document.getElementById("profile-tab-pane").innerHTML =
-    generateStats(currentPokemon);
-  document.getElementById("contact-tab-pane").innerHTML =
-    generateEvolution(currentPokemon);
+  document.getElementById("pokemonName").innerHTML = currentPokemon.details.name_de;
+  document.getElementById("pokemon-card-img").src = currentPokemon.details.imageUrl;
+  document.getElementById("home-tab-pane").innerHTML = generateAbout(currentPokemon);
+  document.getElementById("profile-tab-pane").innerHTML = generateStats(currentPokemon);
+  document.getElementById("contact-tab-pane").innerHTML = generateEvolution(currentPokemon);
   document.getElementById("pokemonCard").classList.remove("d-none");
 }
 
@@ -339,7 +334,7 @@ function searchPokemon(query) {
     );
     displaySearchedPokemon(searchedPokemon);
   } else {
-    displayPokemon(); // Zeige alle Pokémon, wenn die Suchanfrage weniger als 3 Zeichen enthält
+    displayPokemon();
   }
 }
 
@@ -347,13 +342,13 @@ function displaySearchedPokemon(searchedPokemon) {
   const container = document.getElementById("pokedex");
   container.innerHTML = "";
 
-  if (searchedPokemon.length == 0){
+  if (searchedPokemon.length === 0){
     container.innerHTML = '<h2>Kein Pokemon gefunden!</h2>';
-  }
-
-  for (let i = 0; i < searchedPokemon.length; i++) {
-    const pokemon = searchedPokemon[i];
-    container.innerHTML += renderPokemonCard(pokemon, i);
+  } else {
+    for (let i = 0; i < searchedPokemon.length; i++) {
+      const pokemon = searchedPokemon[i];
+      container.innerHTML += renderPokemonCard(pokemon,pokemonData.indexOf(pokemon)); 
+    }
   }
 }
 
