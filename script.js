@@ -77,23 +77,11 @@ async function fetchData(url) {
   return response.json();
 }
 
-function combinePokemonDetails(basicData, speciesData) {
-  return {
-    id: basicData.id,
-    name: basicData.name,
-    height: basicData.height,
-    weight: basicData.weight,
-    types: basicData.types,
-    speciesData: speciesData,
-    stats: basicData.stats,
-    imageUrl: basicData.sprites.other["official-artwork"].front_default, // Hinzufügen der Bild-URL
-  };
-}
-
 async function fetchAndCombinePokemonDetails(pokemon) {
   const basicData = await fetchData(pokemon.url);
   const speciesData = await fetchData(basicData.species.url);
-  const details = combinePokemonDetails(basicData, speciesData);
+  const evolutionData = await fetchEvolutionChain(speciesData.evolution_chain.url);
+  const details = combinePokemonDetails(basicData, speciesData, evolutionData);
 
   return {
     name: pokemon.name,
@@ -116,6 +104,30 @@ async function fetchAllPokemonDetails(results) {
     }
   }
   return detailedPokemonData;
+}
+
+async function fetchEvolutionChain(evolutionChainUrl) {
+  try {
+    const response = await fetch(evolutionChainUrl);
+    const evolutionData = await response.json();
+    return evolutionData;
+  } catch (error) {
+    console.error("Fehler beim Abrufen der Evolutionskette:", error);
+  }
+}
+
+function combinePokemonDetails(basicData, speciesData, evolutionData) {
+  return {
+    id: basicData.id,
+    name: basicData.name,
+    height: basicData.height,
+    weight: basicData.weight,
+    types: basicData.types,
+    speciesData: speciesData,
+    stats: basicData.stats,
+    imageUrl: basicData.sprites.other["official-artwork"].front_default,
+    evolutionChain: evolutionData,
+  };
 }
 
 function sortPokemonData() {
@@ -190,11 +202,17 @@ function displayPokemon() {
 function openPokemonCard(index) {
   const currentPokemon = pokemonData[index];
   currentPokemonIndex = index;
-  document.getElementById("pokemonName").innerHTML = currentPokemon.details.name_de;
-  document.getElementById("pokemon-card-img").src = currentPokemon.details.imageUrl;
-  document.getElementById("home-tab-pane").innerHTML = generateAbout(currentPokemon);
-  document.getElementById("profile-tab-pane").innerHTML = generateStats(currentPokemon);
-  document.getElementById("contact-tab-pane").innerHTML = generateEvolution(currentPokemon);
+  document.getElementById("pokemonName").innerHTML =
+    currentPokemon.details.name_de;
+  document.getElementById("pokemon-card-img").src =
+    currentPokemon.details.imageUrl;
+  document.getElementById("home-tab-pane").innerHTML =
+    generateAbout(currentPokemon);
+  document.getElementById("profile-tab-pane").innerHTML =
+    generateStats(currentPokemon);
+  document.getElementById("contact-tab-pane").innerHTML = generateEvolution(
+    currentPokemon.details.evolutionChain
+  );
   document.getElementById("pokemonCard").classList.remove("d-none");
 }
 
@@ -223,22 +241,17 @@ function generateAbout(currentPokemon){
     <div class="d-flex justify-content-evenly">
       <div class="d-flex flex-column align-items-center">
         <img class="icon" src="./img/height.png" alt="Icon height">
-        <h3>${(currentPokemon.details.height / 10)
-          .toFixed(2)
-          .replace(".", ",")} m</h3>
+        <h3>${(currentPokemon.details.height / 10).toFixed(2).replace(".", ",")} m</h3>
       </div>
       <div class="d-flex flex-column align-items-center">
         <img class="icon" src="./img/weight.png" alt="Icon weight">
-        <h3>${(currentPokemon.details.weight / 10)
-          .toFixed(2)
-          .replace(".", ",")} kg</h3>
+        <h3>${(currentPokemon.details.weight / 10).toFixed(2).replace(".", ",")} kg</h3>
       </div>
     </div>
     <br>
     <p>${germanDescription}</p>
   `;
 }
-// ${currentPokemon.details.stats[0].stat.name}
 
 function generateStats(currentPokemon){
   return `
@@ -246,72 +259,48 @@ function generateStats(currentPokemon){
       <div class="statsTitle">
        <p>KP</p>
       </div>
-      <div class="progress" role="progressbar" aria-label="Warning example" aria-valuenow="${
-        currentPokemon.details.stats[0].base_stat
-      }" aria-valuemin="0" aria-valuemax="255">
-        <div class="progress-bar text-bg-warning" style="width: ${
-          (currentPokemon.details.stats[0].base_stat / 255) * 100
-        }%">${currentPokemon.details.stats[0].base_stat}</div> 
+      <div class="progress" role="progressbar" aria-label="Warning example" aria-valuenow="${currentPokemon.details.stats[0].base_stat}" aria-valuemin="0" aria-valuemax="255">
+        <div class="progress-bar text-bg-warning" style="width: ${(currentPokemon.details.stats[0].base_stat / 255) * 100}%">${currentPokemon.details.stats[0].base_stat}</div> 
       </div>
     </div>
     <div class="statsAttack d-flex flex-row align-items-center">
       <div class="statsTitle">
        <p>Angriff</p>
       </div>
-      <div class="progress" role="progressbar" aria-label="Warning example" aria-valuenow="${
-        currentPokemon.details.stats[1].base_stat
-      }" aria-valuemin="0" aria-valuemax="255">
-        <div class="progress-bar text-bg-warning" style="width: ${
-          (currentPokemon.details.stats[1].base_stat / 255) * 100
-        }%">${currentPokemon.details.stats[1].base_stat}</div>
+      <div class="progress" role="progressbar" aria-label="Warning example" aria-valuenow="${currentPokemon.details.stats[1].base_stat}" aria-valuemin="0" aria-valuemax="255">
+        <div class="progress-bar text-bg-warning" style="width: ${(currentPokemon.details.stats[1].base_stat / 255) * 100}%">${currentPokemon.details.stats[1].base_stat}</div>
       </div>
     </div>
     <div class="statsDefense d-flex flex-row align-items-center">
       <div class="statsTitle">
         <p>Verteidigung</p>
       </div>
-      <div class="progress" role="progressbar" aria-label="Warning example" aria-valuenow="${
-        currentPokemon.details.stats[2].base_stat
-      }" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar text-bg-warning" style="width: ${
-          (currentPokemon.details.stats[2].base_stat / 255) * 100
-        }%">${currentPokemon.details.stats[2].base_stat}</div>
+      <div class="progress" role="progressbar" aria-label="Warning example" aria-valuenow="${currentPokemon.details.stats[2].base_stat}" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar text-bg-warning" style="width: ${(currentPokemon.details.stats[2].base_stat / 255) * 100}%">${currentPokemon.details.stats[2].base_stat}</div>
       </div>
     </div>
     <div class="statsSpecialAttack d-flex flex-row align-items-center">
       <div class="statsTitle">
        <p>Spez.Angriff</p>
       </div>
-      <div class="progress" role="progressbar" aria-label="Warning example" aria-valuenow="${
-        currentPokemon.details.stats[3].base_stat
-      }" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar text-bg-warning" style="width: ${
-          (currentPokemon.details.stats[3].base_stat / 255) * 100
-        }%">${currentPokemon.details.stats[3].base_stat}</div>
+      <div class="progress" role="progressbar" aria-label="Warning example" aria-valuenow="${currentPokemon.details.stats[3].base_stat}" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar text-bg-warning" style="width: ${(currentPokemon.details.stats[3].base_stat / 255) * 100}%">${currentPokemon.details.stats[3].base_stat}</div>
       </div>
     </div>
     <div class="statsSpecialDefense d-flex flex-row align-items-center">
       <div class="statsTitle">
         <p>Spez.Verteidigung</p>
       </div>
-      <div class="progress" role="progressbar" aria-label="Warning example" aria-valuenow="${
-        currentPokemon.details.stats[4].base_stat
-      }" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar text-bg-warning" style="width: ${
-          (currentPokemon.details.stats[4].base_stat / 255) * 100
-        }%">${currentPokemon.details.stats[4].base_stat}</div>
+      <div class="progress" role="progressbar" aria-label="Warning example" aria-valuenow="${currentPokemon.details.stats[4].base_stat}" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar text-bg-warning" style="width: ${(currentPokemon.details.stats[4].base_stat / 255) * 100}%">${currentPokemon.details.stats[4].base_stat}</div>
       </div>
     </div>
     <div class="statsSpeed d-flex flex-row align-items-center">
       <div class="statsTitle">
         <p>Initiative</p>
       </div>
-      <div class="progress" role="progressbar" aria-label="Warning example" aria-valuenow="${
-        currentPokemon.details.stats[5].base_stat
-      }" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar text-bg-warning" style="width: ${
-          (currentPokemon.details.stats[5].base_stat / 255) * 100
-        }%">${currentPokemon.details.stats[5].base_stat}</div>
+      <div class="progress" role="progressbar" aria-label="Warning example" aria-valuenow="${currentPokemon.details.stats[5].base_stat}" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar text-bg-warning" style="width: ${(currentPokemon.details.stats[5].base_stat / 255) * 100}%">${currentPokemon.details.stats[5].base_stat}</div>
       </div>
     </div>
     <div class="d-flex justify-content-end" style="font-size: 12px">
@@ -320,11 +309,26 @@ function generateStats(currentPokemon){
   `;
 }
 
-function generateEvolution(){
+function generateEvolution(evolutionChain) {
+  let htmlContent = "";
+  let currentStage = evolutionChain.chain;
 
+  function addStageToChain(stage) {
+    htmlContent += `
+      <div class="evolution-stage">
+        <p>${stage.species.name}</p>
+      </div>
+    `;
+    if (stage.evolves_to.length > 0) {
+      addStageToChain(stage.evolves_to[0]);
+    }
+  }
+
+  addStageToChain(currentStage);
+
+  return htmlContent;
 }
 
-// Hinzufügen der Suchfunktion
 function searchPokemon(query) {
   if (query.length >= 3) {
     const searchedPokemon = pokemonData.filter((pokemon) =>
@@ -351,203 +355,10 @@ function displaySearchedPokemon(searchedPokemon) {
     }
   }
 }
-
-// Event Listener für das Suchfeld
+ 
 const searchInput = document.getElementById("input");
 searchInput.addEventListener("keypress", function (event) {
   if (event.key === "Enter") {
     searchPokemon(event.target.value);
   }
 });
-
-// let currentPokemonIndex = 0;
-// let displayedPokemon = [];
-
-// // Funktion zum Abrufen der Pokémon-Daten
-// async function fetchPokemonData() {
-//   try {
-//     // Abrufen der Daten von der API
-//     let response = await fetch(POKE_API_URL);
-//     let data = await response.json();
-//     let pokemonList = data.results;
-
-//     // Durch die Liste der Pokémon iterieren
-//     for (let i = 0; i < pokemonList.length; i++) {
-//       let pokemon = pokemonList[i];
-
-//       // Abrufen der Details für jedes Pokémon
-//       let response = await fetch(pokemon.url);
-//       let pokemonDetails = await response.json();
-
-//       // Abrufen der Spezies-Daten, um den deutschen Namen und die Beschreibung zu erhalten
-//       let speciesResponse = await fetch(pokemonDetails.species.url);
-//       let speciesData = await speciesResponse.json();
-
-//       // Extrahieren des deutschen Namens
-//       let germanName = speciesData.names.find(
-//         (name) => name.language.name === "de"
-//       ).name;
-
-//       // Extrahieren der deutschen Beschreibung
-//       let germanDescription = speciesData.flavor_text_entries.find(
-//         (entry) => entry.language.name === "de"
-//       ).flavor_text;
-
-//       // Anzeige der Pokémon-Details
-//       displayPokemon(pokemonDetails, germanName, germanDescription, i);
-//     }
-//   } catch (error) {
-//     // Fehlerbehandlung, falls etwas schiefgeht
-//     console.error("Fehler beim Abrufen der Pokemon-Daten:", error);
-//   }
-// }
-
-// // Funktion zur Anzeige eines Pokémon
-// function displayPokemon(pokemon, germanName, germanDescription, index) {
-//   // Speichern der Pokémon-Daten für das Karussell
-//   displayedPokemon.push({
-//     imgSrc: pokemon.sprites.other["official-artwork"].front_default,
-//     name: germanName,
-//     height: pokemon.height,
-//     weight: pokemon.weight,
-//     description: germanDescription.replace(/\n/g, " "),
-//   });
-
-//   // Erstellen der HTML-Elemente für die Pokémon-Typen auf Deutsch
-//   let pokemonTypes = pokemon.types
-//     .map((typeInfo) => {
-//       let typeName = typeInfo.type.name;
-//       let translatedType = TYPE_TRANSLATIONS[typeName];
-//       let typeColor = TYPE_COLORS[typeName];
-//       return `<span class="pokemon-type" style="background-color: ${typeColor}">${translatedType}</span>`;
-//     })
-//     .join("");
-
-//   // Formatieren der ID mit führenden Nullen
-//   let formattedId = String(pokemon.id).padStart(4, "0");
-
-//   // Bestimmen der Farben für den Hintergrund basierend auf den Typen
-//   let type1Color = TYPE_COLORS[pokemon.types[0].type.name];
-//   let type2Color = type1Color;
-//   if (pokemon.types.length > 1) {
-//     type2Color = TYPE_COLORS[pokemon.types[1].type.name];
-//   }
-//   let backgroundColor = `linear-gradient(to bottom right, ${type1Color}, ${type2Color})`;
-
-//   // Hinzufügen des Pokémon-Divs zum Pokedex-Element
-//   POKEDEX.innerHTML += `
-//     <div onclick="openPokemonCard(${index})" class="pokemon" style="background: ${backgroundColor}">
-//       <p class="ID"># ${formattedId}</p>
-//       <h2>${germanName}</h2>
-//       <img src="${pokemon.sprites.other["official-artwork"].front_default}" alt="${germanName}">
-//       <div class="pokemon-types">${pokemonTypes}</div>
-//     </div>
-//   `;
-// }
-
-// // Funktion zum Suchen von Pokémon
-// async function searchPokemon(query) {
-//   if (query.length < 3) {
-//     return;
-//   }
-
-//   try {
-//     // Abrufen der Daten von der API
-//     let response = await fetch(POKE_API_URL);
-//     let data = await response.json();
-//     let pokemonList = data.results;
-
-//     // Initialisieren eines Arrays, um die gefilterten Pokémon zu speichern
-//     let filteredPokemon = [];
-
-//     // Durch die Liste der Pokémon iterieren
-//     for (let i = 0; i < pokemonList.length; i++) {
-//       let pokemon = pokemonList[i];
-
-//       // Abrufen der Details für jedes Pokémon
-//       let response = await fetch(pokemon.url);
-//       let pokemonDetails = await response.json();
-
-//       // Abrufen der Spezies-Daten, um den deutschen Namen und die Beschreibung zu erhalten
-//       let speciesResponse = await fetch(pokemonDetails.species.url);
-//       let speciesData = await speciesResponse.json();
-
-//       // Extrahieren des deutschen Namens
-//       let germanName = speciesData.names.find(
-//         (name) => name.language.name === "de"
-//       ).name;
-
-//       // Extrahieren der deutschen Beschreibung
-//       let germanDescription = speciesData.flavor_text_entries.find(
-//         (entry) => entry.language.name === "de"
-//       ).flavor_text;
-
-//       // Überprüfen, ob der deutsche Name mit der Suchanfrage übereinstimmt
-//       if (germanName.toLowerCase().startsWith(query.toLowerCase())) {
-//         filteredPokemon.push({ pokemonDetails, germanName, germanDescription });
-//       }
-
-//       // Begrenzen auf 10 Pokémon
-//       if (filteredPokemon.length >= 10) {
-//         break;
-//       }
-//     }
-
-//     // Leeren des aktuellen Pokedex-Inhalts
-//     POKEDEX.innerHTML = "";
-
-//     // Durch die gefilterte Liste der Pokémon iterieren und anzeigen
-//     for (let i = 0; i < filteredPokemon.length; i++) {
-//       let { pokemonDetails, germanName, germanDescription } = filteredPokemon[i];
-//       displayPokemon(pokemonDetails, germanName, germanDescription);
-//     }
-//   } catch (error) {
-//     // Fehlerbehandlung, falls etwas schiefgeht
-//     console.error("Fehler beim Abrufen der Pokemon-Daten:", error);
-//   }
-// }
-
-// // Event Listener für das Suchfeld
-// const searchInput = document.getElementById("input");
-// searchInput.addEventListener("keypress", function (event) {
-//   if (event.key === "Enter") {
-//     searchPokemon(event.target.value);
-//   }
-// });
-
-// // Aufrufen der Funktion zum Abrufen der Pokémon-Daten
-// fetchPokemonData();
-
-// function openPokemonCard(index) {
-//   currentPokemonIndex = index;
-//   const { imgSrc, name, height, weight, description } = displayedPokemon[index];
-//   document.getElementById("pokemon-card-img").src = imgSrc;
-//   document.getElementById("home-tab-pane").innerHTML = `
-//     <br>
-//     <h3>Größe: ${(height / 10).toFixed(1).replace(".", ",")} m</h3>
-//     <h3>Gewicht: ${(weight / 10).toFixed(1).replace(".", ",")} kg</h3>
-//     <br>
-//     <p>${description}</p>
-//   `;
-//   document.getElementById("pokemonCard").classList.remove("d-none");
-// }
-
-// function closePokemonCard() {
-//   document.getElementById("pokemonCard").classList.add("d-none");
-// }
-
-// function prevPokemon(event) {
-//   event.stopPropagation();
-//   if (currentPokemonIndex > 0) {
-//     currentPokemonIndex--;
-//     openPokemonCard(currentPokemonIndex);
-//   }
-// }
-
-// function nextPokemon(event) {
-//   event.stopPropagation();
-//   if (currentPokemonIndex < displayedPokemon.length - 1) {
-//     currentPokemonIndex++;
-//     openPokemonCard(currentPokemonIndex);
-//   }
-// }
