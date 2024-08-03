@@ -204,16 +204,22 @@ footer a {
 .button:hover .two {
     display: inline;
 }
+.card-container {
+  display: inline-block; 
+  border: 15px solid transparent; 
+  position: relative;
+  border-image: linear-gradient(45deg, transparent, transparent); 
+  border-image-slice: 1; 
+  overflow: hidden; 
+}
 .card {
-    width: 50vw !important;
-    max-width: 800px;
-    height: fit-content;
-    background-color: white;
-    border-radius: 8px;
-    padding: 24px;
-    display: flex;
-    align-items: center;
-    border: 15px solid #3366af !important;
+  width: 50vw !important;
+  max-width: 800px;
+  height: fit-content;
+  background-color: white;
+  padding: 24px;
+  display: flex;
+  align-items: center;
 }
 .card h2 {
     color: black !important;
