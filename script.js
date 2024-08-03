@@ -363,7 +363,7 @@ function generateEvolution(evolutionChain) {
     const imageUrl = stage.species.imageUrl;
 
     htmlContent += `
-      <div class="evolution-stage">
+      <div class="evolution-stage d-flex flex-column align-items-center">
         <br>
         <img src="${imageUrl}" alt="${germanName}" style="height:100px">
         <p>${germanName}</p>
