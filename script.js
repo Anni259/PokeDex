@@ -202,17 +202,11 @@ function displayPokemon() {
 function openPokemonCard(index) {
   const currentPokemon = pokemonData[index];
   currentPokemonIndex = index;
-  document.getElementById("pokemonName").innerHTML =
-    currentPokemon.details.name_de;
-  document.getElementById("pokemon-card-img").src =
-    currentPokemon.details.imageUrl;
-  document.getElementById("home-tab-pane").innerHTML =
-    generateAbout(currentPokemon);
-  document.getElementById("profile-tab-pane").innerHTML =
-    generateStats(currentPokemon);
-  document.getElementById("contact-tab-pane").innerHTML = generateEvolution(
-    currentPokemon.details.evolutionChain
-  );
+  document.getElementById("pokemonName").innerHTML =currentPokemon.details.name_de;
+  document.getElementById("pokemon-card-img").src =currentPokemon.details.imageUrl;
+  document.getElementById("home-tab-pane").innerHTML = generateAbout(currentPokemon);
+  document.getElementById("profile-tab-pane").innerHTML = generateStats(currentPokemon);
+  document.getElementById("evolution").innerHTML = generateEvolution(currentPokemon.details.evolutionChain);
   document.getElementById("pokemonCard").classList.remove("d-none");
 }
 
@@ -316,6 +310,7 @@ function generateEvolution(evolutionChain) {
   function addStageToChain(stage) {
     htmlContent += `
       <div class="evolution-stage">
+        <img src="${stage.species.imageUrl}" alt="${stage.species.pokemonName}">
         <p>${stage.species.name}</p>
       </div>
     `;
@@ -323,9 +318,7 @@ function generateEvolution(evolutionChain) {
       addStageToChain(stage.evolves_to[0]);
     }
   }
-
   addStageToChain(currentStage);
-
   return htmlContent;
 }
 
