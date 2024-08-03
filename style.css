@@ -45,6 +45,7 @@ header nav {
 }
 h2 {
     color: white !important;
+    font-size: 28px !important;
 }
 h3 {
     font-size: 20px !important;
@@ -111,7 +112,7 @@ footer a {
     padding: 10px;
     margin: 10px;
     background-color: #fff;
-    width: 200px;
+    width: 220px;
     height: 320px;
     text-align: center;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);

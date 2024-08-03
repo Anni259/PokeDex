@@ -81,6 +81,7 @@ async function fetchAndCombinePokemonDetails(pokemon) {
   const basicData = await fetchData(pokemon.url);
   const speciesData = await fetchData(basicData.species.url);
   const evolutionData = await fetchEvolutionChain(speciesData.evolution_chain.url);
+  addNamesToEvolutionChain(evolutionData.chain);
   const details = combinePokemonDetails(basicData, speciesData, evolutionData);
 
   return {
@@ -134,6 +135,24 @@ function sortPokemonData() {
   pokemonData.sort((a, b) => a.details.id - b.details.id);
 }
 
+function addNamesToEvolutionChain(stage) {
+  if (!stage.species.names) {
+    // Fetch species data if names are not already present
+    fetchData(
+      `https://pokeapi.co/api/v2/pokemon-species/${stage.species.name}/`
+    )
+      .then((speciesData) => {
+        stage.species.names = speciesData.names;
+        stage.evolves_to.forEach(addNamesToEvolutionChain);
+      })
+      .catch((error) =>
+        console.error("Fehler beim Abrufen der Spezies-Daten:", error)
+      );
+  } else {
+    stage.evolves_to.forEach(addNamesToEvolutionChain);
+  }
+}
+
 function translateName(names) {
   const germanNameEntry = names.find((name) => name.language.name === "de");
   if (germanNameEntry) {
@@ -144,12 +163,27 @@ function translateName(names) {
 }
 
 function translateTypes(types) {
-  types.forEach((type) => {type.type.name_de = TYPE_TRANSLATIONS[type.type.name];});
+  types.forEach((type) => {
+    type.type.name_de = TYPE_TRANSLATIONS[type.type.name];
+  });
+}
+
+function translateEvolutionChain(evolutionChain) {
+  if (!evolutionChain) return;
+  const translateStage = (stage) => {
+    if (stage.species && stage.species.names) {
+      stage.species.name_de = translateName(stage.species.names);
+    }
+    stage.evolves_to.forEach(translateStage);
+  };
+  translateStage(evolutionChain.chain);
 }
 
 function translate() {
-  pokemonData.forEach((pokemon) => {pokemon.details.name_de = translateName(pokemon.details.speciesData.names);
+  pokemonData.forEach((pokemon) => {
+    pokemon.details.name_de = translateName(pokemon.details.speciesData.names);
     translateTypes(pokemon.details.types);
+    translateEvolutionChain(pokemon.details.evolutionChain);
   });
 }
 
@@ -308,10 +342,11 @@ function generateEvolution(evolutionChain) {
   let currentStage = evolutionChain.chain;
 
   function addStageToChain(stage) {
+    const germanName = stage.species.name_de || stage.species.name;
     htmlContent += `
       <div class="evolution-stage">
-        <img src="${stage.species.imageUrl}" alt="${stage.species.pokemonName}">
-        <p>${stage.species.name}</p>
+        <img src="${stage.species.imageUrl || ""}" alt="${germanName}">
+        <p>${germanName}</p>
       </div>
     `;
     if (stage.evolves_to.length > 0) {
@@ -321,6 +356,7 @@ function generateEvolution(evolutionChain) {
   addStageToChain(currentStage);
   return htmlContent;
 }
+
 
 function searchPokemon(query) {
   if (query.length >= 3) {
