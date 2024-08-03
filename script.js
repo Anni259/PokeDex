@@ -107,16 +107,33 @@ async function fetchAllPokemonDetails(results) {
   return detailedPokemonData;
 }
 
+async function fetchPokemonImage(pokemonName) {
+  const response = await fetch(
+    `https://pokeapi.co/api/v2/pokemon/${pokemonName}`
+  );
+  const data = await response.json();
+  return data.sprites.other["official-artwork"].front_default;
+}
+
 async function fetchEvolutionChain(evolutionChainUrl) {
   try {
     const response = await fetch(evolutionChainUrl);
     const evolutionData = await response.json();
+
+    async function addImagesToChain(chain) {
+      chain.species.imageUrl = await fetchPokemonImage(chain.species.name);
+      for (let i = 0; i < chain.evolves_to.length; i++) {
+        await addImagesToChain(chain.evolves_to[i]);
+      }
+    }
+
+    await addImagesToChain(evolutionData.chain);
+
     return evolutionData;
   } catch (error) {
     console.error("Fehler beim Abrufen der Evolutionskette:", error);
   }
 }
-
 function combinePokemonDetails(basicData, speciesData, evolutionData) {
   return {
     id: basicData.id,
@@ -342,21 +359,25 @@ function generateEvolution(evolutionChain) {
   let currentStage = evolutionChain.chain;
 
   function addStageToChain(stage) {
-    const germanName = stage.species.name_de || stage.species.name;
+    const germanName = translateName(stage.species.names);
+    const imageUrl = stage.species.imageUrl;
+
     htmlContent += `
       <div class="evolution-stage">
-        <img src="${stage.species.imageUrl || ""}" alt="${germanName}">
+        <br>
+        <img src="${imageUrl}" alt="${germanName}" style="height:100px">
         <p>${germanName}</p>
       </div>
     `;
+
     if (stage.evolves_to.length > 0) {
       addStageToChain(stage.evolves_to[0]);
     }
   }
+
   addStageToChain(currentStage);
   return htmlContent;
 }
-
 
 function searchPokemon(query) {
   if (query.length >= 3) {
