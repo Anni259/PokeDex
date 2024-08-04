@@ -9,6 +9,8 @@ body {
     --sb-track-color: #ffffff;
     --sb-thumb-color: #ffcb03;
     --sb-size: 20px;
+    margin: 0;
+    padding: 120px 0; /* Platz für den Footer schaffen */
 }
 body::-webkit-scrollbar {
     width: var(--sb-size)
@@ -38,6 +40,11 @@ main {
 }
 header {
     background-color: white;
+    position: fixed; /* An den unteren Rand des Viewports binden */
+    top: 0; /* Position am unteren Rand */
+    left: 0; /* Position am linken Rand */
+    width: 100%;
+    z-index: 1000;
 }
 header nav {
     max-width: 1440px;
@@ -56,13 +63,16 @@ p {
     margin-top: 1rem !important;
 }
 footer {
-    position: absolute;
+    position: fixed; /* An den unteren Rand des Viewports binden */
+    bottom: 0; /* Position am unteren Rand */
+    left: 0; /* Position am linken Rand */
     width: 100%;
     background-color: white;
-    height: 150px;
+    height: 120px;
     display: flex;
     justify-content: space-around;
     align-items: center;
+    z-index: 1000; /* Sicherstellen, dass der Footer vor anderen Elementen liegt */
 }
 footer a {
     cursor: pointer;
@@ -99,14 +109,11 @@ footer a {
     font-size: 13.4px;
     text-align: center;
 }
-
 #pokedex {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    /* height: 100vh; */
 }
-
 .pokemon {
     border-radius: 24px;
     padding: 10px;
@@ -144,7 +151,6 @@ footer a {
     text-align: right;
     color: white;
 }
-
 .loadButton{
     display: flex;
     justify-content: center;
@@ -168,15 +174,12 @@ footer a {
     border: 3px solid rgb(51,102,175);
     transition: 0.6s ease-in;
 }
-
 .button:hover {
     background: #fff;
 }
-
 .button .two {
     display: none;
 }
-
 .button::before {
     content: "";
     width: 0;
@@ -191,22 +194,20 @@ footer a {
     display: block;
     z-index: -1;
 }
-
 .button:hover::before {
     width: 140px;
     transition: 3s linear;
 }
-
 .button:hover .one {
     display: none;
 }
-
 .button:hover .two {
     display: inline;
 }
 .card-container {
   display: inline-block; 
   border: 15px solid transparent; 
+  border-radius: 8px !important;
   position: relative;
   border-image: linear-gradient(45deg, transparent, transparent); 
   border-image-slice: 1; 
@@ -220,6 +221,8 @@ footer a {
   padding: 24px;
   display: flex;
   align-items: center;
+  border-radius: 0px !important;
+  border: 0px !important;
 }
 .card h2 {
     color: black !important;
@@ -252,19 +255,15 @@ footer a {
     padding: 20px;
     cursor: pointer;
     color: rgb(255,203,3);
-    font-weight: bold;
     font-size: 48px;
     user-select: none;
 }
-
 .arrow.left {
     left: 0;
 }
-
 .arrow.right {
     right: 0;
 }
-
 .close {
     position: absolute;
     top: 2%;
@@ -274,16 +273,13 @@ footer a {
     color: rgb(255,203,3);
     cursor: pointer;
 }
-
 .nav-link {
     color:#3366af !important;
 }
-
 .nav-link.active{
     font-weight: bold !important;
     color: rgb(255,203,3) !important;
 }
-
 .icon {
     height: 40px;
     width: 40px;
@@ -292,7 +288,6 @@ footer a {
     width: 65%;
     height: 25px !important;
 }
-
 .statsTitle {
     width: 35%;
 }

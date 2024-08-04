@@ -246,9 +246,8 @@ function applyTypeColorsToBorder(pokemon) {
   const cardContainer = document.querySelector(".card-container");
   const typeColors = getTypeColors(pokemon.details.types);
 
-  // Setzt den Gradient als Border-Image
   cardContainer.style.borderImage = typeColors;
-  cardContainer.style.borderImageSlice = 1; // Stellt sicher, dass der Border-Image korrekt angezeigt wird
+  cardContainer.style.borderImageSlice = 1;
 }
 
 function displayPokemon() {
@@ -265,10 +264,8 @@ function openPokemonCard(index) {
   const currentPokemon = pokemonData[index];
   currentPokemonIndex = index;
 
-  // Setzen Sie die Typfarben auf den Border
   applyTypeColorsToBorder(currentPokemon);
 
-  // Rest der Funktion bleibt unverändert
   document.getElementById("pokemonName").innerHTML = currentPokemon.details.name_de;
   document.getElementById("pokemon-card-img").src = currentPokemon.details.imageUrl;
   document.getElementById("home-tab-pane").innerHTML = generateAbout(currentPokemon);
@@ -276,8 +273,6 @@ function openPokemonCard(index) {
   document.getElementById("evolution").innerHTML = generateEvolution(currentPokemon.details.evolutionChain);
   document.getElementById("pokemonCard").classList.remove("d-none");
 }
-
-
 
 function closePokemonCard() {
   document.getElementById("pokemonCard").classList.add("d-none");

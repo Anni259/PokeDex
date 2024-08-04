@@ -1,0 +1,40 @@
+@media (max-width: 1206px) {
+    .card {
+        width: 80vw !important;
+    }
+}
+
+@media (max-width: 769px){
+    .statsTitle p {
+        font-size: 12px !important;
+    }
+    .text-bg-warning {
+        font-size: 10px !important;
+    }
+}
+@media (max-width: 600px) {
+    
+}
+@media (max-width:500px) {
+    div.container-fluid {
+        display: flex !important;
+        flex-direction: column;
+    }
+    .input {
+        width:240px;
+    }
+    .inputContainer {
+        width:250px;
+    }
+    img.logo {
+        height: 80px;
+    }
+    footer {
+        flex-direction: column;
+        font-size: 12px;
+        height: 90px;
+    }
+    body {
+        padding-top: 150px;
+    }
+}
