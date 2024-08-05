@@ -301,11 +301,17 @@ function generateAbout(currentPokemon){
     <div class="d-flex justify-content-evenly">
       <div class="d-flex flex-column align-items-center">
         <img class="icon" src="./img/height.png" alt="Icon height">
-        <h3>${(currentPokemon.details.height / 10).toFixed(2).replace(".", ",")} m</h3>
+        <br>
+        <h3>${(currentPokemon.details.height / 10)
+          .toFixed(2)
+          .replace(".", ",")} m</h3>
       </div>
       <div class="d-flex flex-column align-items-center">
         <img class="icon" src="./img/weight.png" alt="Icon weight">
-        <h3>${(currentPokemon.details.weight / 10).toFixed(2).replace(".", ",")} kg</h3>
+        <br>
+        <h3>${(currentPokemon.details.weight / 10)
+          .toFixed(2)
+          .replace(".", ",")} kg</h3>
       </div>
     </div>
     <br>
