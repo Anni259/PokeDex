@@ -13,7 +13,62 @@
     }
 }
 @media (max-width: 600px) {
-    
+    #statsHp, 
+    #statsAttack, 
+    #statsDefense, 
+    #statsSpecialAttack, 
+    #statsSpecialDefense, 
+    #statsSpeed {
+        flex-direction: column !important;
+    }
+    .progress,
+    .statsTitle {
+        width: 80%;
+    }
+    .statsTitle p {
+        margin: 2px 0 !important;
+    }
+    #pokemon-card-img {
+        height: 80px !important;
+        width: 80px !important;
+    }
+    .evolution-img {
+        height: 50px !important;
+    }
+    .evolution-title,
+    .description,
+    h3 {
+        font-size: 12px !important;
+    }
+   .card-body {
+        width: 95% !important;
+   }
+   .nav-item button {
+        font-size: 12px;
+        padding: 2px 4px;
+   }
+   .icon {
+        height: 20px;
+        width: 20px;
+   }
+   h2 {
+        font-size: 20px !important;
+   }
+   .arrow {
+        font-size: 36px !important;
+   }
+     .close {
+        font-size: 30px !important;
+     }
+   .card-container {
+        border: 8px solid transparent;
+   }
+   .card {
+        padding: 10px !important;
+   }
+   .pokemonCard-bg {
+        padding-top: 36px;
+   }
 }
 @media (max-width:500px) {
     div.container-fluid {
@@ -22,19 +77,28 @@
     }
     .input {
         width:240px;
+        height: 15px;
     }
     .inputContainer {
-        width:250px;
+        width: 250px;
+        height: 20px;
     }
     img.logo {
-        height: 80px;
+        height: 56px;
     }
     footer {
         flex-direction: column;
         font-size: 12px;
-        height: 90px;
+        height: 56px;
     }
     body {
-        padding-top: 150px;
+        padding-top: 90px !important;
+    }
+}
+
+@media (max-width: 380px) {
+    .evolution-title, 
+    i {
+        font-size: 10px !important;
     }
 }

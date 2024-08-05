@@ -10,7 +10,7 @@ body {
     --sb-thumb-color: #ffcb03;
     --sb-size: 20px;
     margin: 0;
-    padding: 120px 0; /* Platz für den Footer schaffen */
+    padding: 150px 0 !important; /* Platz für den Footer schaffen */
 }
 body::-webkit-scrollbar {
     width: var(--sb-size)
@@ -73,11 +73,12 @@ footer {
     justify-content: space-around;
     align-items: center;
     z-index: 1000; /* Sicherstellen, dass der Footer vor anderen Elementen liegt */
+    color: #3366af;
 }
 footer a {
     cursor: pointer;
     text-decoration: none;
-    color: black;
+    color: #3366af;;
 }
 .logo {
     height: 100px;
@@ -272,6 +273,9 @@ footer a {
     font-weight: bold;
     color: rgb(255,203,3);
     cursor: pointer;
+}
+.nav {
+    flex-wrap: nowrap !important;
 }
 .nav-link {
     color:#3366af !important;
