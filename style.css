@@ -80,6 +80,9 @@ footer a {
     text-decoration: none;
     color: #3366af;;
 }
+.overflow {
+    overflow: hidden;
+}
 .logo {
     height: 100px;
 }

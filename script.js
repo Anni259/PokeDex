@@ -272,10 +272,12 @@ function openPokemonCard(index) {
   document.getElementById("profile-tab-pane").innerHTML = generateStats(currentPokemon);
   document.getElementById("evolution").innerHTML = generateEvolution(currentPokemon.details.evolutionChain);
   document.getElementById("pokemonCard").classList.remove("d-none");
+  document.getElementById("body").classList.add("overflow");
 }
 
 function closePokemonCard() {
   document.getElementById("pokemonCard").classList.add("d-none");
+  document.getElementById("body").classList.remove("overflow");
 }
 
 function prevPokemon() {
