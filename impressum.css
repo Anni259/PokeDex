@@ -9,7 +9,7 @@ h2 {
     color: #3366af !important;
     text-decoration: none !important;
 }
-.bg-light {
+.bg-white {
   --bs-bg-opacity: 1;
   background-color: rgba(var(--bs-success-rgb), var(--bs-bg-opacity)) !important;
   border-radius: 8px;
