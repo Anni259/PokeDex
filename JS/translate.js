@@ -52,3 +52,4 @@ function translate() {
     translateEvolutionChain(pokemon.details.evolutionChain);
   });
 }
+

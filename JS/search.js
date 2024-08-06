@@ -32,5 +32,6 @@ const searchInput = document.getElementById("input");
 searchInput.addEventListener("keypress", function (event) {
   if (event.key === "Enter") {
     searchPokemon(event.target.value);
+    event.target.value = "";
   }
 });

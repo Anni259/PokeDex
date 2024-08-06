@@ -123,3 +123,13 @@ function generateStats(currentPokemon) {
     </div>
   `;
 }
+
+function generateEvolution(germanName, imageUrl) {
+  return `
+      <div class="evolution-stage d-flex flex-column align-items-center">
+        <br>
+        <img class="evolution-img" src="${imageUrl}" alt="${germanName}" style="height:100px">
+        <p class="evolution-title">${germanName}</p>
+      </div>
+    `;
+}

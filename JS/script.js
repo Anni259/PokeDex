@@ -38,14 +38,16 @@ function loadMorePokemon(){
   numberOfDisplayedPokemon += 25;
   renderAllPokemon();
 }
+const pokemonDataCache = {};
 
 async function fetchPokemonData() {
   try {
-    let response = await fetch(POKE_API_URL+"&offset="+(numberOfDisplayedPokemon-25));
+    let response = await fetch(
+      POKE_API_URL + "&offset=" + (numberOfDisplayedPokemon - 25)
+    );
     let data = await response.json();
     let pokemonFetchDetails = await fetchAllPokemonDetails(data.results);
     pokemonFetchDetails.forEach((pokemon) => pokemonData.push(pokemon));
-  
   } catch (error) {
     console.error("Fehler beim Abrufen der Pokémon-Daten:", error);
   }
@@ -57,62 +59,75 @@ async function fetchData(url) {
 }
 
 async function fetchAndCombinePokemonDetails(pokemon) {
+  if (pokemonDataCache[pokemon.name]) {
+    return pokemonDataCache[pokemon.name];
+  }
+
   const basicData = await fetchData(pokemon.url);
-  const speciesData = await fetchData(basicData.species.url);
-  const evolutionData = await fetchEvolutionChain(speciesData.evolution_chain.url);
+  const speciesDataPromise = fetchData(basicData.species.url);
+  const speciesData = await speciesDataPromise;
+
+  const evolutionDataPromise = fetchEvolutionChain(
+    speciesData.evolution_chain.url
+  );
+  const evolutionData = await evolutionDataPromise;
+
   addNamesToEvolutionChain(evolutionData.chain);
+
   const details = combinePokemonDetails(basicData, speciesData, evolutionData);
 
-  return {
+  const pokemonDetails = {
     name: pokemon.name,
     url: pokemon.url,
     details: details,
   };
+
+  pokemonDataCache[pokemon.name] = pokemonDetails;
+
+  return pokemonDetails;
 }
 
 async function fetchAllPokemonDetails(results) {
-  let detailedPokemonData = [];
-
-  for (let i = 0; i < results.length; i++) {
-    let pokemon = results[i];
-    try {
-      let pokemonDetails = await fetchAndCombinePokemonDetails(pokemon);
-      detailedPokemonData.push(pokemonDetails);
-    } catch (error) {
-      console.error(
-        `Fehler beim Abrufen der Details für Pokémon ${pokemon.name}:`, error);
-    }
-  }
+  const detailedPokemonData = await Promise.all(results.map(fetchAndCombinePokemonDetails));
   return detailedPokemonData;
 }
 
+const imageCache = {};
+
 async function fetchPokemonImage(pokemonName) {
-  const response = await fetch(
-    `https://pokeapi.co/api/v2/pokemon/${pokemonName}`
-  );
+  if (imageCache[pokemonName]) {
+    return imageCache[pokemonName];
+  }
+
+  const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
   const data = await response.json();
-  return data.sprites.other["official-artwork"].front_default;
+  const imageUrl = data.sprites.other["official-artwork"].front_default;
+
+  imageCache[pokemonName] = imageUrl;
+
+  return imageUrl;
+}
+
+async function addImagesToChain(chain) {
+  if (!chain.species.imageUrl) {
+    chain.species.imageUrl = await fetchPokemonImage(chain.species.name);
+  }
+  for (let i = 0; i < chain.evolves_to.length; i++) {
+    await addImagesToChain(chain.evolves_to[i]);
+  }
 }
 
 async function fetchEvolutionChain(evolutionChainUrl) {
   try {
     const response = await fetch(evolutionChainUrl);
     const evolutionData = await response.json();
-
-    async function addImagesToChain(chain) {
-      chain.species.imageUrl = await fetchPokemonImage(chain.species.name);
-      for (let i = 0; i < chain.evolves_to.length; i++) {
-        await addImagesToChain(chain.evolves_to[i]);
-      }
-    }
-
     await addImagesToChain(evolutionData.chain);
-
     return evolutionData;
   } catch (error) {
     console.error("Fehler beim Abrufen der Evolutionskette:", error);
   }
 }
+
 function combinePokemonDetails(basicData, speciesData, evolutionData) {
   return {
     id: basicData.id,
@@ -131,21 +146,17 @@ function sortPokemonData() {
   pokemonData.sort((a, b) => a.details.id - b.details.id);
 }
 
-function addNamesToEvolutionChain(stage) {
+async function addNamesToEvolutionChain(stage) {
   if (!stage.species.names) {
-    // Fetch species data if names are not already present
-    fetchData(
-      `https://pokeapi.co/api/v2/pokemon-species/${stage.species.name}/`
-    )
-      .then((speciesData) => {
-        stage.species.names = speciesData.names;
-        stage.evolves_to.forEach(addNamesToEvolutionChain);
-      })
-      .catch((error) =>
-        console.error("Fehler beim Abrufen der Spezies-Daten:", error)
-      );
+    const speciesData = await fetchData(`https://pokeapi.co/api/v2/pokemon-species/${stage.species.name}/`);
+    stage.species.names = speciesData.names;
+    for (let i = 0; i < stage.evolves_to.length; i++) {
+      await addNamesToEvolutionChain(stage.evolves_to[i]);
+    }
   } else {
-    stage.evolves_to.forEach(addNamesToEvolutionChain);
+    for (let i = 0; i < stage.evolves_to.length; i++) {
+      await addNamesToEvolutionChain(stage.evolves_to[i]);
+    }
   }
 }
 
@@ -204,7 +215,7 @@ function openPokemonCard(index) {
   document.getElementById("pokemon-card-img").src = currentPokemon.details.imageUrl;
   document.getElementById("home-tab-pane").innerHTML = generateAbout(currentPokemon);
   document.getElementById("profile-tab-pane").innerHTML = generateStats(currentPokemon);
-  document.getElementById("evolution").innerHTML = generateEvolution(currentPokemon.details.evolutionChain);
+  document.getElementById("evolution").innerHTML = renderEvolution(currentPokemon.details.evolutionChain);
   document.getElementById("pokemonCard").classList.remove("d-none");
   document.getElementById("body").classList.add("overflow");
 }
@@ -228,27 +239,21 @@ function nextPokemon() {
   }
 }
 
-function generateEvolution(evolutionChain) {
+function renderEvolution(evolutionChain) {
   let htmlContent = "";
   let currentStage = evolutionChain.chain;
 
-  function addStageToChain(stage) {
-    const germanName = translateName(stage.species.names);
-    const imageUrl = stage.species.imageUrl;
+  while (currentStage) {
+    const germanName = translateName(currentStage.species.names);
+    const imageUrl = currentStage.species.imageUrl;
 
-    htmlContent += `
-      <div class="evolution-stage d-flex flex-column align-items-center">
-        <br>
-        <img class="evolution-img" src="${imageUrl}" alt="${germanName}" style="height:100px">
-        <p class="evolution-title">${germanName}</p>
-      </div>
-    `;
+    htmlContent += generateEvolution(germanName, imageUrl);
 
-    if (stage.evolves_to.length > 0) {
-      addStageToChain(stage.evolves_to[0]);
+    if (currentStage.evolves_to.length > 0) {
+      currentStage = currentStage.evolves_to[0];
+    } else {
+      break;
     }
   }
-
-  addStageToChain(currentStage);
   return htmlContent;
 }
