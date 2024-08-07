@@ -6,39 +6,12 @@ let numberOfDisplayedPokemon = 25;
 
 const POKEDEX = document.getElementById("pokedex");
 
-const TYPE_COLORS = {
-  normal: "#A8A77A",
-  fire: "#EE8130",
-  water: "#6390F0",
-  electric: "#F7D02C",
-  grass: "#7AC74C",
-  ice: "#96D9D6",
-  fighting: "#C22E28",
-  poison: "#A33EA1",
-  ground: "#E2BF65",
-  flying: "#A98FF3",
-  psychic: "#F95587",
-  bug: "#A6B91A",
-  rock: "#B6A136",
-  ghost: "#735797",
-  dragon: "#6F35FC",
-  dark: "#705746",
-  steel: "#B7B7CE",
-  fairy: "#D685AD",
-};
-
 async function renderAllPokemon(){
   await fetchPokemonData();
   sortPokemonData();
   translate();
   displayPokemon();
 }
-
-function loadMorePokemon(){
-  numberOfDisplayedPokemon += 25;
-  renderAllPokemon();
-}
-const pokemonDataCache = {};
 
 async function fetchPokemonData() {
   try {
@@ -58,33 +31,31 @@ async function fetchData(url) {
   return response.json();
 }
 
-async function fetchAndCombinePokemonDetails(pokemon) {
-  if (pokemonDataCache[pokemon.name]) {
-    return pokemonDataCache[pokemon.name];
-  }
+const pokemonDataCache = {};
 
+async function fetchBasicDataAndSpecies(pokemon) {
   const basicData = await fetchData(pokemon.url);
-  const speciesDataPromise = fetchData(basicData.species.url);
-  const speciesData = await speciesDataPromise;
+  const speciesData = await fetchData(basicData.species.url);
+  return { basicData, speciesData };
+}
 
-  const evolutionDataPromise = fetchEvolutionChain(
+async function fetchEvolutionData(speciesData) {
+  const evolutionData = await fetchEvolutionChain(
     speciesData.evolution_chain.url
   );
-  const evolutionData = await evolutionDataPromise;
-
   addNamesToEvolutionChain(evolutionData.chain);
+  return evolutionData;
+}
 
-  const details = combinePokemonDetails(basicData, speciesData, evolutionData);
-
-  const pokemonDetails = {
-    name: pokemon.name,
-    url: pokemon.url,
-    details: details,
-  };
-
-  pokemonDataCache[pokemon.name] = pokemonDetails;
-
-  return pokemonDetails;
+async function fetchEvolutionChain(evolutionChainUrl) {
+  try {
+    const response = await fetch(evolutionChainUrl);
+    const evolutionData = await response.json();
+    await addImagesToChain(evolutionData.chain);
+    return evolutionData;
+  } catch (error) {
+    console.error("Fehler beim Abrufen der Evolutionskette:", error);
+  }
 }
 
 async function fetchAllPokemonDetails(results) {
@@ -108,24 +79,27 @@ async function fetchPokemonImage(pokemonName) {
   return imageUrl;
 }
 
-async function addImagesToChain(chain) {
-  if (!chain.species.imageUrl) {
-    chain.species.imageUrl = await fetchPokemonImage(chain.species.name);
+async function fetchAndCombinePokemonDetails(pokemon) {
+  if (pokemonDataCache[pokemon.name]) {
+    return pokemonDataCache[pokemon.name];
   }
-  for (let i = 0; i < chain.evolves_to.length; i++) {
-    await addImagesToChain(chain.evolves_to[i]);
-  }
+
+  const { basicData, speciesData } = await fetchBasicDataAndSpecies(pokemon);
+  const evolutionData = await fetchEvolutionData(speciesData);
+  const details = createPokemonDetails(basicData, speciesData, evolutionData);
+
+  const pokemonDetails = {
+    name: pokemon.name,
+    url: pokemon.url,
+    details: details,
+  };
+
+  pokemonDataCache[pokemon.name] = pokemonDetails;
+  return pokemonDetails;
 }
 
-async function fetchEvolutionChain(evolutionChainUrl) {
-  try {
-    const response = await fetch(evolutionChainUrl);
-    const evolutionData = await response.json();
-    await addImagesToChain(evolutionData.chain);
-    return evolutionData;
-  } catch (error) {
-    console.error("Fehler beim Abrufen der Evolutionskette:", error);
-  }
+function createPokemonDetails(basicData, speciesData, evolutionData) {
+  return combinePokemonDetails(basicData, speciesData, evolutionData);
 }
 
 function combinePokemonDetails(basicData, speciesData, evolutionData) {
@@ -140,6 +114,15 @@ function combinePokemonDetails(basicData, speciesData, evolutionData) {
     imageUrl: basicData.sprites.other["official-artwork"].front_default,
     evolutionChain: evolutionData,
   };
+}
+
+async function addImagesToChain(chain) {
+  if (!chain.species.imageUrl) {
+    chain.species.imageUrl = await fetchPokemonImage(chain.species.name);
+  }
+  for (let i = 0; i < chain.evolves_to.length; i++) {
+    await addImagesToChain(chain.evolves_to[i]);
+  }
 }
 
 function sortPokemonData() {
@@ -194,26 +177,6 @@ function renderPokemonCard(pokemon, index) {
   return generatePokemonCardHTML(pokemonId,pokemonName,backgroundColor,typesHTML,imageUrl,index);
 }
 
-function getTypeColors(types) {
-  if (types.length === 1) {
-    return `linear-gradient(45deg, ${TYPE_COLORS[types[0].type.name]}, ${
-      TYPE_COLORS[types[0].type.name]
-    })`;
-  } else {
-    const color1 = TYPE_COLORS[types[0].type.name];
-    const color2 = TYPE_COLORS[types[1].type.name];
-    return `linear-gradient(45deg, ${color1}, ${color2})`;
-  }
-}
-
-function applyTypeColorsToBorder(pokemon) {
-  const cardContainer = document.querySelector(".card-container");
-  const typeColors = getTypeColors(pokemon.details.types);
-
-  cardContainer.style.borderImage = typeColors;
-  cardContainer.style.borderImageSlice = 1;
-}
-
 function displayPokemon() {
   const container = document.getElementById("pokedex");
   container.innerHTML = "";
@@ -244,6 +207,11 @@ function openPokemonCard(index) {
 function closePokemonCard() {
   document.getElementById("pokemonCard").classList.add("d-none");
   document.getElementById("body").classList.remove("overflow");
+}
+
+function loadMorePokemon(){
+  numberOfDisplayedPokemon += 25;
+  renderAllPokemon();
 }
 
 const prevButton = document.getElementById('prevButton');
