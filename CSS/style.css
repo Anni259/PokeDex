@@ -224,7 +224,6 @@ footer a {
   padding: 24px;
   display: flex;
   align-items: center;
-  border-radius: 0px !important;
   border: 0px !important;
 }
 .card h2 {

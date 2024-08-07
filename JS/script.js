@@ -160,6 +160,25 @@ async function addNamesToEvolutionChain(stage) {
   }
 }
 
+function renderEvolution(evolutionChain) {
+  let htmlContent = "";
+  let currentStage = evolutionChain.chain;
+
+  while (currentStage) {
+    const germanName = translateName(currentStage.species.names);
+    const imageUrl = currentStage.species.imageUrl;
+
+    htmlContent += generateEvolution(germanName, imageUrl);
+
+    if (currentStage.evolves_to.length > 0) {
+      currentStage = currentStage.evolves_to[0];
+    } else {
+      break;
+    }
+  }
+  return htmlContent;
+}
+
 function getPokemonTypesHTML(types) {
   return types.map((type) =>
         `<span class="pokemon-type" style="background-color: ${TYPE_COLORS[type.type.name]}">${type.type.name_de}</span>`).join("");
@@ -218,12 +237,17 @@ function openPokemonCard(index) {
   document.getElementById("evolution").innerHTML = renderEvolution(currentPokemon.details.evolutionChain);
   document.getElementById("pokemonCard").classList.remove("d-none");
   document.getElementById("body").classList.add("overflow");
+
+  updateButtonVisibility();
 }
 
 function closePokemonCard() {
   document.getElementById("pokemonCard").classList.add("d-none");
   document.getElementById("body").classList.remove("overflow");
 }
+
+const prevButton = document.getElementById('prevButton');
+const nextButton = document.getElementById('nextButton');
 
 function prevPokemon() {
   if (currentPokemonIndex > 0) {
@@ -239,21 +263,18 @@ function nextPokemon() {
   }
 }
 
-function renderEvolution(evolutionChain) {
-  let htmlContent = "";
-  let currentStage = evolutionChain.chain;
-
-  while (currentStage) {
-    const germanName = translateName(currentStage.species.names);
-    const imageUrl = currentStage.species.imageUrl;
-
-    htmlContent += generateEvolution(germanName, imageUrl);
-
-    if (currentStage.evolves_to.length > 0) {
-      currentStage = currentStage.evolves_to[0];
-    } else {
-      break;
-    }
+function updateButtonVisibility() {
+  if (currentPokemonIndex === 0) {
+    prevButton.style.display = "none"; 
+  } else {
+    prevButton.style.display = "block"; 
   }
-  return htmlContent;
+
+  if (currentPokemonIndex === pokemonData.length - 1) {
+    nextButton.style.display = "none"; 
+  } else {
+    nextButton.style.display = "block";
+  }
 }
+
+updateButtonVisibility();

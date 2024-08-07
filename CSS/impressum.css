@@ -1,13 +1,13 @@
 main {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: #3366af !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #3366af !important;
 }
 a, 
 h2 {
-    color: #3366af !important;
-    text-decoration: none !important;
+  color: #3366af !important;
+  text-decoration: none !important;
 }
 .bg-white {
   --bs-bg-opacity: 1;
