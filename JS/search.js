@@ -20,10 +20,7 @@ function displaySearchedPokemon(searchedPokemon) {
   } else {
     for (let i = 0; i < searchedPokemon.length; i++) {
       const pokemon = searchedPokemon[i];
-      container.innerHTML += renderPokemonCard(
-        pokemon,
-        pokemonData.indexOf(pokemon)
-      );
+      container.innerHTML += renderPokemonCard(pokemon,pokemonData.indexOf(pokemon));
     }
   }
 }
