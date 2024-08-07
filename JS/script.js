@@ -1,10 +1,11 @@
 const POKE_API_URL = "https://pokeapi.co/api/v2/pokemon?limit=25";
+const POKEDEX = document.getElementById("pokedex");
+const pokemonDataCache = {};
+const imageCache = {};
 
 let pokemonData = [];
 let currentPokemonIndex = 0;
 let numberOfDisplayedPokemon = 25;
-
-const POKEDEX = document.getElementById("pokedex");
 
 async function renderAllPokemon(){
   await fetchPokemonData();
@@ -15,9 +16,7 @@ async function renderAllPokemon(){
 
 async function fetchPokemonData() {
   try {
-    let response = await fetch(
-      POKE_API_URL + "&offset=" + (numberOfDisplayedPokemon - 25)
-    );
+    let response = await fetch(POKE_API_URL + "&offset=" + (numberOfDisplayedPokemon - 25));
     let data = await response.json();
     let pokemonFetchDetails = await fetchAllPokemonDetails(data.results);
     pokemonFetchDetails.forEach((pokemon) => pokemonData.push(pokemon));
@@ -31,39 +30,15 @@ async function fetchData(url) {
   return response.json();
 }
 
-const pokemonDataCache = {};
-
 async function fetchBasicDataAndSpecies(pokemon) {
   const basicData = await fetchData(pokemon.url);
   const speciesData = await fetchData(basicData.species.url);
   return { basicData, speciesData };
 }
 
-async function fetchEvolutionData(speciesData) {
-  const evolutionData = await fetchEvolutionChain(
-    speciesData.evolution_chain.url
-  );
-  addNamesToEvolutionChain(evolutionData.chain);
-  return evolutionData;
-}
-
-async function fetchEvolutionChain(evolutionChainUrl) {
-  try {
-    const response = await fetch(evolutionChainUrl);
-    const evolutionData = await response.json();
-    await addImagesToChain(evolutionData.chain);
-    return evolutionData;
-  } catch (error) {
-    console.error("Fehler beim Abrufen der Evolutionskette:", error);
-  }
-}
-
 async function fetchAllPokemonDetails(results) {
-  const detailedPokemonData = await Promise.all(results.map(fetchAndCombinePokemonDetails));
-  return detailedPokemonData;
+  return Promise.all(results.map(fetchAndCombinePokemonDetails));
 }
-
-const imageCache = {};
 
 async function fetchPokemonImage(pokemonName) {
   if (imageCache[pokemonName]) {
@@ -98,6 +73,54 @@ async function fetchAndCombinePokemonDetails(pokemon) {
   return pokemonDetails;
 }
 
+async function fetchEvolutionData(speciesData) {
+  const evolutionData = await fetchEvolutionChain(
+    speciesData.evolution_chain.url
+  );
+  addNamesToEvolutionChain(evolutionData.chain);
+  return evolutionData;
+}
+
+async function fetchEvolutionChain(evolutionChainUrl) {
+  try {
+    const response = await fetch(evolutionChainUrl);
+    const evolutionData = await response.json();
+    await addImagesToChain(evolutionData.chain);
+    return evolutionData;
+  } catch (error) {
+    console.error("Fehler beim Abrufen der Evolutionskette:", error);
+  }
+}
+
+async function addNamesToEvolutionChain(stage) {
+  if (!stage.species.names) {
+    try {
+      const speciesData = await fetchData(`https://pokeapi.co/api/v2/pokemon-species/${stage.species.name}/`);
+      stage.species.names = speciesData.names;
+    } catch (error) {
+      console.error("Fehler beim Abrufen der Spezies-Daten:", error.message);
+    }
+  }
+
+  await Promise.all(stage.evolves_to.map((evolve) => addNamesToEvolutionChain(evolve)));
+}
+
+function renderEvolution(evolutionChain) {
+  const generateEvolutionChain = (stage) => {
+    if (!stage) return "";
+
+    const germanName = translateName(stage.species.names);
+    const imageUrl = stage.species.imageUrl;
+    const evolutionHTML = generateEvolution(germanName, imageUrl);
+
+    return (evolutionHTML +(stage.evolves_to.length > 0
+      ? generateEvolutionChain(stage.evolves_to[0])
+      : "")
+    );
+  };
+  return generateEvolutionChain(evolutionChain.chain);
+}
+
 function createPokemonDetails(basicData, speciesData, evolutionData) {
   return combinePokemonDetails(basicData, speciesData, evolutionData);
 }
@@ -129,42 +152,9 @@ function sortPokemonData() {
   pokemonData.sort((a, b) => a.details.id - b.details.id);
 }
 
-async function addNamesToEvolutionChain(stage) {
-  if (!stage.species.names) {
-    const speciesData = await fetchData(`https://pokeapi.co/api/v2/pokemon-species/${stage.species.name}/`);
-    stage.species.names = speciesData.names;
-    for (let i = 0; i < stage.evolves_to.length; i++) {
-      await addNamesToEvolutionChain(stage.evolves_to[i]);
-    }
-  } else {
-    for (let i = 0; i < stage.evolves_to.length; i++) {
-      await addNamesToEvolutionChain(stage.evolves_to[i]);
-    }
-  }
-}
-
-function renderEvolution(evolutionChain) {
-  let htmlContent = "";
-  let currentStage = evolutionChain.chain;
-
-  while (currentStage) {
-    const germanName = translateName(currentStage.species.names);
-    const imageUrl = currentStage.species.imageUrl;
-
-    htmlContent += generateEvolution(germanName, imageUrl);
-
-    if (currentStage.evolves_to.length > 0) {
-      currentStage = currentStage.evolves_to[0];
-    } else {
-      break;
-    }
-  }
-  return htmlContent;
-}
-
 function getPokemonTypesHTML(types) {
   return types.map((type) =>
-        `<span class="pokemon-type" style="background-color: ${TYPE_COLORS[type.type.name]}">${type.type.name_de}</span>`).join("");
+    `<span class="pokemon-type" style="background-color: ${TYPE_COLORS[type.type.name]}">${type.type.name_de}</span>`).join("");
 }
 
 function renderPokemonCard(pokemon, index) {
@@ -179,13 +169,9 @@ function renderPokemonCard(pokemon, index) {
 
 function displayPokemon() {
   const container = document.getElementById("pokedex");
-  container.innerHTML = "";
-
-  for (let i = 0; i < pokemonData.length; i++) {
-    const pokemon = pokemonData[i];
-    container.innerHTML += renderPokemonCard(pokemon, i);
-  }
+  container.innerHTML = pokemonData.map((pokemon, i) => renderPokemonCard(pokemon, i)).join("");
 }
+
 
 function openPokemonCard(index) {
   const currentPokemon = pokemonData[index];
